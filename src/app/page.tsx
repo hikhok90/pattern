@@ -1,103 +1,98 @@
-import Image from "next/image";
+// src/app/page.tsx
+import { sampleFeedback } from '@/data/sampleFeedback';
+import ScoreGauge from '@/components/ScoreGauge';
+import StrengthsWeaknesses from '@/components/StrengthsWeaknesses';
+import AnalysisRadarChart from '@/components/AnalysisRadarChart';
+import MetricDisplay from '@/components/MetricDisplay';
+import QuestionAnalysisCard from '@/components/QuestionAnalysisCard';
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const feedback = sampleFeedback; // Load the sample data
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  return (
+    <main className="flex min-h-screen flex-col items-center justify-between p-6 md:p-12 lg:p-24 bg-gray-100">
+      <div className="z-10 max-w-7xl w-full font-sans text-sm">
+        <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">AI Interview Feedback Report</h1>
+        <p className="text-center text-gray-600 mb-8">
+          Analysis for {feedback.intervieweeName} on {new Date(feedback.interviewDate).toLocaleDateString()}
+        </p>
+
+        {/* 1. Overall Summary Section */}
+        <section className="mb-12 p-6 bg-white rounded-lg shadow-lg">
+          <h2 className="text-2xl font-semibold mb-4 text-gray-700">Overall Summary</h2>
+          <div className="grid md:grid-cols-3 gap-6 items-start">
+            <div className="md:col-span-1 flex justify-center">
+              <ScoreGauge score={feedback.overall.score} category={feedback.overall.category} />
+            </div>
+            <div className="md:col-span-2">
+              <StrengthsWeaknesses
+                strengths={feedback.overall.strengths}
+                areasForImprovement={feedback.overall.areasForImprovement}
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* Analysis Sections Grid */}
+        <div className="grid lg:grid-cols-2 gap-12 mb-12">
+
+          {/* 2. Non-Verbal Analysis Section */}
+          <section className="p-6 bg-white rounded-lg shadow-lg">
+            <h2 className="text-2xl font-semibold mb-4 text-gray-700">Non-Verbal Analysis</h2>
+            <AnalysisRadarChart data={feedback.nonVerbal.radarData} title="Non-Verbal Dimensions" />
+            <div className="grid grid-cols-2 gap-4 mt-6">
+              <MetricDisplay label="Eye Contact" value={feedback.nonVerbal.eyeContact} unit="%" info="Target: 70-90%" />
+              <MetricDisplay label="Posture" value={feedback.nonVerbal.posture} />
+              <MetricDisplay label="Facial Engagement" value={feedback.nonVerbal.facialEngagement} />
+              <MetricDisplay label="Gestures" value={feedback.nonVerbal.gestures} />
+            </div>
+            {/* Add Timeline highlights placeholder if needed */}
+          </section>
+
+          {/* 3. Delivery Analysis Section */}
+          <section className="p-6 bg-white rounded-lg shadow-lg">
+            <h2 className="text-2xl font-semibold mb-4 text-gray-700">Delivery Analysis</h2>
+            <AnalysisRadarChart data={feedback.delivery.radarData} title="Delivery Dimensions" />
+            <div className="grid grid-cols-2 gap-4 mt-6">
+              <MetricDisplay label="Confidence Score" value={feedback.delivery.confidence} unit="/100" />
+              <MetricDisplay
+                label="Speaking Pace"
+                value={feedback.delivery.paceWPM}
+                unit=" WPM"
+                info={`Optimal: ${feedback.delivery.optimalPaceRange[0]}-${feedback.delivery.optimalPaceRange[1]}`}
+              />
+              <MetricDisplay
+                label="Filler Words"
+                value={feedback.delivery.fillerWordsPerMinute}
+                unit="/min"
+                benchmark={feedback.delivery.benchmarkFillerWords}
+                benchmarkLabel="Target"
+              />
+              <MetricDisplay label="Tone Variation" value={feedback.delivery.toneVariation} />
+              <MetricDisplay label="Articulation" value={feedback.delivery.articulation} />
+            </div>
+            {/* Add Transcript integration placeholder */}
+          </section>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+
+        {/* 4. Content Analysis Section */}
+        <section className="mb-12 p-6 bg-white rounded-lg shadow-lg w-full">
+          <h2 className="text-2xl font-semibold mb-4 text-gray-700">Content Analysis</h2>
+          {feedback.content.radarData && (
+            <div className="mb-8 max-w-md mx-auto"> {/* Constrain radar chart width */}
+              <AnalysisRadarChart data={feedback.content.radarData} title="Overall Content Scores" />
+            </div>
+          )}
+          <h3 className="text-xl font-semibold mb-3 text-gray-600">Question-by-Question Breakdown</h3>
+          <div>
+            {feedback.content.questionBreakdown.map(qAnalysis => (
+              <QuestionAnalysisCard key={qAnalysis.id} analysis={qAnalysis} />
+            ))}
+          </div>
+          {/* Add Word Cloud comparison placeholder */}
+        </section>
+
+      </div>
+    </main>
   );
 }
